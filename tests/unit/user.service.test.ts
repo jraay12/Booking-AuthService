@@ -116,7 +116,53 @@ describe("User service", () => {
 
       const result = await userService.update(dto, user_id);
 
-      expect(result).not.toHaveProperty("password_hash")
+      expect(result).not.toHaveProperty("password_hash");
     });
+  });
+
+  describe("user deactivate", () => {
+    const user_id = "3";
+
+    it("should not deactivate if user already is deactivated", async () => {
+      userRepo.findById.mockResolvedValue({
+        id: user_id,
+        is_active: false,
+      } as any);
+
+      await expect(userService.deactivate(user_id)).rejects.toThrow(
+        "User is a already deactivated",
+      );
+
+      expect(userRepo.update).not.toHaveBeenCalled();
+    });
+
+    it("should return error if user not found", async () => {
+      userRepo.findById.mockResolvedValue(null);
+
+      await expect(userService.deactivate(user_id)).rejects.toThrow(
+        "User not found",
+      );
+
+      expect(userRepo.update).not.toHaveBeenCalled();
+    });
+
+    it("should deactivate user successfully", async() => {
+      userRepo.findById.mockResolvedValue({
+        id: user_id,
+        is_active: true
+      } as any)
+
+      userRepo.update.mockResolvedValue({
+        id: user_id,
+        is_active: false
+      } as any)
+
+      const result = await userService.deactivate(user_id)
+
+      expect(userRepo.update).toHaveBeenCalledWith({is_active: false}, user_id)
+
+      expect(result.is_active).toBe(false)
+    })
+
   });
 });
