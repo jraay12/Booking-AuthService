@@ -1,7 +1,7 @@
-import { AuthService } from "../../src/modules/auth.service";
-import { UserRepository } from "../../src/modules/types/user-repository.interface";
-import { BcryptService } from "../../src/modules/types/bcrypt.interface";
-import { JwtService } from "../../src/modules/types/jwt.interface";
+import { AuthService } from "../../src/modules/Auth/auth.service";
+import { UserRepository } from "../../src/modules/Auth/types/user-repository.interface";
+import { BcryptService } from "../../src/modules/Auth/types/bcrypt.interface";
+import { JwtService } from "../../src/modules/Auth/types/jwt.interface";
 
 describe("AuthService", () => {
   let authService: AuthService;
@@ -35,11 +35,7 @@ describe("AuthService", () => {
     bcryptService = createBcryptMock();
     jwtService = createJwtMock();
 
-    authService = new AuthService(
-      userRepository,
-      bcryptService,
-      jwtService,
-    );
+    authService = new AuthService(userRepository, bcryptService, jwtService);
   });
 
   // =========================
@@ -126,9 +122,7 @@ describe("AuthService", () => {
     it("should fail if user not found", async () => {
       userRepository.findByEmail.mockResolvedValue(null);
 
-      await expect(authService.login(dto)).rejects.toThrow(
-        "User not found",
-      );
+      await expect(authService.login(dto)).rejects.toThrow("User not found");
     });
 
     it("should fail if password does not match", async () => {

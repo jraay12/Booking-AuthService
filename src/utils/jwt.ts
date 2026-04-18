@@ -1,4 +1,4 @@
-import { JwtService } from "../modules/types/jwt.interface";
+import { JwtService } from "../modules/Auth/types/jwt.interface";
 import jwt from "jsonwebtoken";
 import { BadRequestError } from "../shared/BadRequestError";
 export class JwtServiceImpl implements JwtService {

@@ -1,6 +1,6 @@
-import { UserRepository } from "./types/user-repository.interface";
+import { UserRepository } from "../Auth/types/user-repository.interface";
 import { PrismaClient, User } from "@prisma/client";
-import { prisma } from "../utils/prisma";
+import { prisma } from "../../utils/prisma";
 
 export class AuthRepositoryImpl implements UserRepository {
   constructor(private prisma: PrismaClient = prisma) {}
@@ -28,8 +28,8 @@ export class AuthRepositoryImpl implements UserRepository {
       },
     });
 
-    if (!user) return null
+    if (!user) return null;
 
-    return user
+    return user;
   }
 }

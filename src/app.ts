@@ -1,13 +1,13 @@
-import express from "express"
+import express from "express";
 import { Request, Response } from "express";
 import { authController } from "./container";
-import authRoutes from "./modules/auth.routes";
+import authRoutes from "./modules/Auth/auth.routes";
 import { GlobalErrorHandler } from "./middleware/GlobalErrorHandler";
-const app = express()
+const app = express();
 
-app.use(express.json())
+app.use(express.json());
 
-app.use("/auth", authRoutes(authController))
+app.use("/auth", authRoutes(authController));
 
 app.get("/health", (req: Request, res: Response) => {
   res.status(200).json({
@@ -17,6 +17,6 @@ app.get("/health", (req: Request, res: Response) => {
   });
 });
 
-app.use(GlobalErrorHandler)
+app.use(GlobalErrorHandler);
 
-export default app
+export default app;
