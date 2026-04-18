@@ -11,7 +11,7 @@ const userRepo = new UserRepositoryImpl(prisma);
 
 // other services
 const bcrypt = new BcryptImpl();
-const jwt = new JwtServiceImpl(process.env.SECRET_TOKEN!);
+export const jwt = new JwtServiceImpl(process.env.SECRET_TOKEN!);
 
 // services
 const authService = new AuthService(userRepo, bcrypt, jwt);

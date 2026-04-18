@@ -4,12 +4,13 @@ import { authController, userController } from "./container";
 import authRoutes from "./modules/Auth/auth.routes";
 import userRoutes from "./modules/User/user.routes";
 import { GlobalErrorHandler } from "./middleware/GlobalErrorHandler";
+import { jwt } from "./container";
 const app = express();
 
 app.use(express.json());
 
 app.use("/auth", authRoutes(authController));
-app.use("/user", userRoutes(userController));
+app.use("/user", userRoutes(userController, jwt));
 
 
 app.get("/health", (req: Request, res: Response) => {
