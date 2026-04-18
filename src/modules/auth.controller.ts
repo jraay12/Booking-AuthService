@@ -16,4 +16,17 @@ export class AuthController {
       next(error)
     }
   }
+
+  login = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const InputBody = req.body as {email: string, password: string}
+      const {access_token} = await this.authService.login(InputBody)
+      res.status(200).json({
+        message: "Successfully Logged In",
+        token: access_token
+      })
+    } catch (error) {
+      next(error)
+    }
+  }
 }
