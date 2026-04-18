@@ -1,4 +1,4 @@
-import { UserRepository } from "../Auth/types/user-repository.interface";
+import { UserRepository } from "./types/user-repository.interface";
 import { PrismaClient, User } from "@prisma/client";
 import { prisma } from "../../utils/prisma";
 

@@ -1,6 +1,6 @@
 import { ConflictError } from "../../shared/ConflictError";
 import { BcryptService } from "./types/bcrypt.interface";
-import { UserRepository } from "./types/user-repository.interface";
+import { UserRepository } from "../User/types/user-repository.interface";
 import { JwtService } from "./types/jwt.interface";
 import { NotFoundError } from "../../shared/NotFoundError";
 import { UnAuthorizedError } from "../../shared/UnAuthorizedError";

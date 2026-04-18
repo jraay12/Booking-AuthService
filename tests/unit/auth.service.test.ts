@@ -1,5 +1,5 @@
 import { AuthService } from "../../src/modules/Auth/auth.service";
-import { UserRepository } from "../../src/modules/Auth/types/user-repository.interface";
+import { UserRepository } from "../../src/modules/User/types/user-repository.interface";
 import { BcryptService } from "../../src/modules/Auth/types/bcrypt.interface";
 import { JwtService } from "../../src/modules/Auth/types/jwt.interface";
 
