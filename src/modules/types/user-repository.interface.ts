@@ -1,0 +1,4 @@
+export interface UserRepository {
+  create(user: { email: string; password: string, first_name: string, last_name: string }): Promise<any>;
+  findByEmail(email: string): Promise<any>;
+}
