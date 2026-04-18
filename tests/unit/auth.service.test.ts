@@ -15,6 +15,8 @@ describe("AuthService", () => {
   const createUserRepositoryMock = (): jest.Mocked<UserRepository> => ({
     create: jest.fn(),
     findByEmail: jest.fn(),
+    findById: jest.fn(),
+    update: jest.fn()
   });
 
   const createBcryptMock = (): jest.Mocked<BcryptService> => ({
