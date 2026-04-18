@@ -1,8 +1,13 @@
 import express from "express"
 import { Request, Response } from "express";
+import { authController } from "./container";
+import authRoutes from "./modules/auth.routes";
+import { GlobalErrorHandler } from "./middleware/GlobalErrorHandler";
 const app = express()
 
 app.use(express.json())
+
+app.use("/auth", authRoutes(authController))
 
 app.get("/health", (req: Request, res: Response) => {
   res.status(200).json({
@@ -11,5 +16,7 @@ app.get("/health", (req: Request, res: Response) => {
     timestamp: new Date().toISOString(),
   });
 });
+
+app.use(GlobalErrorHandler)
 
 export default app
