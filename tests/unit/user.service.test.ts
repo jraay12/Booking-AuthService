@@ -1,3 +1,4 @@
+import { describe } from "node:test";
 import { UpdateUserDTO } from "../../src/modules/User/dto/user.dto";
 import { UserRepository } from "../../src/modules/User/types/user-repository.interface";
 import { UserService } from "../../src/modules/User/user.service";
@@ -11,6 +12,7 @@ describe("User service", () => {
     findByEmail: jest.fn(),
     findById: jest.fn(),
     update: jest.fn(),
+    findAll: jest.fn(),
   });
 
   beforeEach(() => {
@@ -221,7 +223,9 @@ describe("User service", () => {
     it("should return error if user not found", async () => {
       userRepo.findById.mockResolvedValue(null);
 
-      await expect(userService.findById(user_id)).rejects.toThrow("User not found");
+      await expect(userService.findById(user_id)).rejects.toThrow(
+        "User not found",
+      );
 
       expect(userRepo.findById).toHaveBeenCalledWith(user_id);
     });
@@ -230,7 +234,7 @@ describe("User service", () => {
       const mockUser = {
         id: "1",
         email: "john@gmail.com",
-        password_hash: "hashedpassword"
+        password_hash: "hashedpassword",
       };
       userRepo.findById.mockResolvedValue(mockUser as any);
 
@@ -240,7 +244,60 @@ describe("User service", () => {
         id: "1",
         email: "john@gmail.com",
       });
-      expect(result).not.toHaveProperty("password_hash")
+      expect(result).not.toHaveProperty("password_hash");
+    });
+  });
+
+  describe("Get all users", () => {
+    it("should return active user", async () => {
+      userRepo.findAll.mockResolvedValue([{ id: "1", is_active: true } as any]);
+
+      const result = await userService.getUsers({ is_active: true });
+
+      expect(userRepo.findAll).toHaveBeenCalledWith({ is_active: true });
+
+      expect(result[0].is_active).toBe(true);
+      result.forEach((user) => {
+        expect(user).not.toHaveProperty("password_hash");
+      });
+    });
+
+    it("should return inactive users", async () => {
+      userRepo.findAll.mockResolvedValue([
+        { id: "2", is_active: false } as any,
+      ]);
+
+      const result = await userService.getUsers({ is_active: false });
+
+      expect(userRepo.findAll).toHaveBeenCalledWith({
+        is_active: false,
+      });
+
+      expect(result[0].is_active).toBe(false);
+    });
+
+    it("should return empty array when no users exist", async () => {
+      userRepo.findAll.mockResolvedValue([]);
+
+      const result = await userService.getUsers({ is_active: true });
+
+      expect(result).toEqual([]);
+    });
+
+    it("should return all users when no filter is provided", async () => {
+      userRepo.findAll.mockResolvedValue([
+        { id: "1", is_active: true, password_hash: "123456" } as any,
+        { id: "2", is_active: false, password_hash: "123456" } as any,
+      ]);
+
+      const result = await userService.getUsers();
+
+      expect(userRepo.findAll).toHaveBeenCalledWith(undefined);
+
+      expect(result.length).toBe(2);
+      result.forEach(user => {
+        expect(user).not.toHaveProperty("password_hash")
+      })
     });
   });
 });

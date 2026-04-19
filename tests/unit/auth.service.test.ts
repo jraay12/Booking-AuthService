@@ -16,7 +16,8 @@ describe("AuthService", () => {
     create: jest.fn(),
     findByEmail: jest.fn(),
     findById: jest.fn(),
-    update: jest.fn()
+    update: jest.fn(),
+    findAll: jest.fn(),
   });
 
   const createBcryptMock = (): jest.Mocked<BcryptService> => ({
@@ -102,13 +103,19 @@ describe("AuthService", () => {
       const createdUser = {
         id: "1",
         email: dto.email,
+        password_hash: "123456",
       };
 
       userRepository.create.mockResolvedValue(createdUser as any);
 
       const result = await authService.register(dto);
 
-      expect(result).toEqual(createdUser);
+      expect(result).toEqual({
+        id: "1",
+        email: dto.email,
+      });
+
+      expect(result).not.toHaveProperty("password_hash");
     });
   });
 
