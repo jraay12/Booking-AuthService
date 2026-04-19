@@ -6,6 +6,8 @@ const userRoutes = (userController: UserController, jwtService: JwtService) => {
   const router = Router();
 
   router.patch("/:user_id", authMiddleware(jwtService), userController.update);
+  router.patch("/:user_id/deactivate", authMiddleware(jwtService), userController.deactivate);
+
   return router;
 };
 
