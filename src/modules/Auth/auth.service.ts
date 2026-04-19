@@ -28,9 +28,9 @@ export class AuthService {
       password: hashedPassword,
     });
 
-    const { password, ...result } = user;
+    const {password_hash, ...safe} = user
 
-    return result;
+    return safe;
   }
 
   async login(dto: { email: string; password: string }) {
