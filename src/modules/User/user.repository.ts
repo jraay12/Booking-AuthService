@@ -46,15 +46,24 @@ export class UserRepositoryImpl implements UserRepository {
     return user;
   }
 
-  async update(
-    user: Partial<User>,
-    user_id: string,
-  ): Promise<User> {
+  async update(user: Partial<User>, user_id: string): Promise<User> {
     return await prisma.user.update({
       where: {
         id: user_id,
       },
-      data: user
+      data: user,
+    });
+  }
+
+  async findAll(filters?: { is_active?: boolean }): Promise<User[]> {
+
+    const whereClause: any = {}
+
+    if(filters?.is_active !== undefined){
+      whereClause.is_active = filters.is_active
+    }
+    return await prisma.user.findMany({
+      where: whereClause
     });
   }
 }
