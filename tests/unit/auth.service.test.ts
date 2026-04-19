@@ -1,7 +1,16 @@
+jest.mock("../../src/utils/redis", () => ({
+  redisClient: {
+    get: jest.fn(),
+    set: jest.fn(),
+    del: jest.fn(),
+  },
+}));
+
 import { AuthService } from "../../src/modules/Auth/auth.service";
 import { UserRepository } from "../../src/modules/User/types/user-repository.interface";
 import { BcryptService } from "../../src/modules/Auth/types/bcrypt.interface";
 import { JwtService } from "../../src/modules/Auth/types/jwt.interface";
+import { redisClient } from "../../src/utils/redis";
 
 describe("AuthService", () => {
   let authService: AuthService;
@@ -54,6 +63,7 @@ describe("AuthService", () => {
 
     it("should hash password before saving user", async () => {
       userRepository.findByEmail.mockResolvedValue(null);
+      (redisClient.del as jest.Mock).mockResolvedValue(null);
       userRepository.create.mockResolvedValue({
         id: "1",
         email: dto.email,
@@ -69,7 +79,7 @@ describe("AuthService", () => {
 
     it("should create user with hashed password", async () => {
       userRepository.findByEmail.mockResolvedValue(null);
-
+      (redisClient.del as jest.Mock).mockResolvedValue(null);
       userRepository.create.mockResolvedValue({
         id: "1",
         ...dto,
@@ -91,7 +101,7 @@ describe("AuthService", () => {
         id: "1",
         email: dto.email,
       } as any);
-
+      
       await expect(authService.register(dto)).rejects.toThrow(
         "Email already exists",
       );
@@ -99,6 +109,7 @@ describe("AuthService", () => {
 
     it("should return created user", async () => {
       userRepository.findByEmail.mockResolvedValue(null);
+      (redisClient.del as jest.Mock).mockResolvedValue(null);
 
       const createdUser = {
         id: "1",

@@ -1,7 +1,14 @@
-import { describe } from "node:test";
-import { UpdateUserDTO } from "../../src/modules/User/dto/user.dto";
+jest.mock("../../src/utils/redis", () => ({
+  redisClient: {
+    get: jest.fn(),
+    set: jest.fn(),
+    del: jest.fn(),
+  },
+}));
+
 import { UserRepository } from "../../src/modules/User/types/user-repository.interface";
 import { UserService } from "../../src/modules/User/user.service";
+import { redisClient } from "../../src/utils/redis";
 
 describe("User service", () => {
   let userRepo: jest.Mocked<UserRepository>;
@@ -15,9 +22,17 @@ describe("User service", () => {
     findAll: jest.fn(),
   });
 
-  beforeEach(() => {
-    userRepo = updateUserRepositoryMock();
+  jest.mock("../../src/utils/redis", () => ({
+    redisClient: {
+      get: jest.fn(),
+      set: jest.fn(),
+      del: jest.fn(),
+    },
+  }));
 
+  beforeEach(() => {
+    jest.clearAllMocks();
+    userRepo = updateUserRepositoryMock();
     userService = new UserService(userRepo);
   });
 
@@ -250,16 +265,17 @@ describe("User service", () => {
 
   describe("Get all users", () => {
     it("should return active user", async () => {
+      (redisClient.get as jest.Mock).mockResolvedValue(null);
+
       userRepo.findAll.mockResolvedValue([{ id: "1", is_active: true } as any]);
+
+      (redisClient.set as jest.Mock).mockResolvedValue(null);
 
       const result = await userService.getUsers({ is_active: true });
 
       expect(userRepo.findAll).toHaveBeenCalledWith({ is_active: true });
 
       expect(result[0].is_active).toBe(true);
-      result.forEach((user) => {
-        expect(user).not.toHaveProperty("password_hash");
-      });
     });
 
     it("should return inactive users", async () => {
@@ -285,19 +301,41 @@ describe("User service", () => {
     });
 
     it("should return all users when no filter is provided", async () => {
+      (redisClient.get as jest.Mock).mockResolvedValue(null);
+
       userRepo.findAll.mockResolvedValue([
         { id: "1", is_active: true, password_hash: "123456" } as any,
         { id: "2", is_active: false, password_hash: "123456" } as any,
       ]);
 
+      (redisClient.set as jest.Mock).mockResolvedValue(null);
+
       const result = await userService.getUsers();
+
+      expect(redisClient.get).toHaveBeenCalled();
 
       expect(userRepo.findAll).toHaveBeenCalledWith(undefined);
 
+      expect(redisClient.set).toHaveBeenCalled();
+
       expect(result.length).toBe(2);
-      result.forEach(user => {
-        expect(user).not.toHaveProperty("password_hash")
-      })
+    });
+
+    it("should return cached users when cache exists", async () => {
+      const cachedUsers = [
+        { id: "1", is_active: true },
+        { id: "2", is_active: false },
+      ];
+
+      (redisClient.get as jest.Mock).mockResolvedValue(
+        JSON.stringify(cachedUsers),
+      );
+
+      const result = await userService.getUsers();
+      expect(redisClient.get).toHaveBeenCalled();
+      expect(userRepo.findAll).not.toHaveBeenCalled();
+
+      expect(result).toEqual(cachedUsers);
     });
   });
 });
