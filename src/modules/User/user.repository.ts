@@ -47,18 +47,14 @@ export class UserRepositoryImpl implements UserRepository {
   }
 
   async update(
-    user: { email: string; first_name: string; last_name: string },
+    user: Partial<User>,
     user_id: string,
   ): Promise<User> {
     return await prisma.user.update({
       where: {
         id: user_id,
       },
-      data: {
-        email: user.email,
-        first_name: user.first_name,
-        last_name: user.last_name
-      },
+      data: user
     });
   }
 }
