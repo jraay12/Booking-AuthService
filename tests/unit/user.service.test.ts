@@ -214,4 +214,33 @@ describe("User service", () => {
       expect(userRepo.update).not.toHaveBeenCalled();
     });
   });
+
+  describe("Get User By Id", () => {
+    const user_id = "1";
+
+    it("should return error if user not found", async () => {
+      userRepo.findById.mockResolvedValue(null);
+
+      await expect(userService.findById(user_id)).rejects.toThrow("User not found");
+
+      expect(userRepo.findById).toHaveBeenCalledWith(user_id);
+    });
+
+    it("should return user if found", async () => {
+      const mockUser = {
+        id: "1",
+        email: "john@gmail.com",
+        password_hash: "hashedpassword"
+      };
+      userRepo.findById.mockResolvedValue(mockUser as any);
+
+      const result = await userService.findById(user_id);
+      expect(userRepo.findById).toHaveBeenCalledWith(user_id);
+      expect(result).toEqual({
+        id: "1",
+        email: "john@gmail.com",
+      });
+      expect(result).not.toHaveProperty("password_hash")
+    });
+  });
 });
