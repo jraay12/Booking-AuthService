@@ -42,8 +42,14 @@ export class UserService {
 
     if (!user) throw new NotFoundError("User not found");
 
-    const {password_hash, ...safe} = user
+    const { password_hash, ...safe } = user;
 
-    return safe
+    return safe;
+  }
+
+  async getUsers(filters?: { is_active?: boolean }) {
+    const user = await this.userRepo.findAll(filters);
+
+    return user.map(({ password_hash, ...safe }) => safe);
   }
 }
