@@ -24,13 +24,25 @@ export class UserController {
 
   deactivate = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const inputParams = req.params as {user_id: string}
-      const result = await this.userService.deactivate(inputParams.user_id)
+      const inputParams = req.params as { user_id: string };
+      const result = await this.userService.deactivate(inputParams.user_id);
       res.status(200).json({
-        message:`Successfully deactivate user ${result.first_name} ${result.last_name}`,
-      })
+        message: `Successfully deactivate user ${result.first_name} ${result.last_name}`,
+      });
     } catch (error) {
-      next(error)
+      next(error);
+    }
+  };
+
+  activate = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const inputParams = req.params as { user_id: string };
+      const result = await this.userService.activate(inputParams.user_id);
+      res.status(200).json({
+        message: `Successfully activate ${result.first_name} ${result.last_name}`,
+      });
+    } catch (error) {
+      next(error);
     }
   };
 }
