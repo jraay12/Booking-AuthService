@@ -58,4 +58,18 @@ export class UserController {
       next(error);
     }
   };
+
+  getUsers = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { is_active } = req.query;
+      const filters: { is_active?: boolean } = {};
+      if (is_active !== undefined) {
+        filters.is_active = is_active === "true";
+      }
+      const users = await this.userService.getUsers(filters);
+      return res.json(users);
+    } catch (error) {
+      next(error);
+    }
+  };
 }
