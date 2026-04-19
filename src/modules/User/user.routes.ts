@@ -17,6 +17,7 @@ const userRoutes = (userController: UserController, jwtService: JwtService) => {
     userController.activate,
   );
   router.get("/:user_id", authMiddleware(jwtService), userController.getById);
+  router.get("/", authMiddleware(jwtService), userController.getUsers);
 
   return router;
 };
