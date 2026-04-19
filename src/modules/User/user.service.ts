@@ -36,4 +36,14 @@ export class UserService {
 
     return await this.userRepo.update({ is_active: true }, user_id);
   }
+
+  async findById(user_id: string) {
+    const user = await this.userRepo.findById(user_id);
+
+    if (!user) throw new NotFoundError("User not found");
+
+    const {password_hash, ...safe} = user
+
+    return safe
+  }
 }
