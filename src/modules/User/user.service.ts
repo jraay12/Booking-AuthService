@@ -1,3 +1,4 @@
+import { redisClient } from "./../../utils/redis";
 import { BadRequestError } from "../../shared/BadRequestError";
 import { NotFoundError } from "../../shared/NotFoundError";
 import { UpdateUserDTO } from "./dto/user.dto";
@@ -24,6 +25,8 @@ export class UserService {
     if (!user.is_active)
       throw new BadRequestError("User is a already deactivated");
 
+    await redisClient.del("users")
+
     return await this.userRepo.update({ is_active: false }, user_id);
   }
 
@@ -33,6 +36,8 @@ export class UserService {
     if (!user) throw new NotFoundError("User not found");
 
     if (user.is_active) throw new BadRequestError("User already activated");
+
+    await redisClient.del("users")
 
     return await this.userRepo.update({ is_active: true }, user_id);
   }
@@ -48,8 +53,22 @@ export class UserService {
   }
 
   async getUsers(filters?: { is_active?: boolean }) {
+    
+    const cached = await redisClient.get("users");
+
+    if (cached) {
+      console.log("cache hit");
+      return JSON.parse(cached);
+    }
+
+    console.log("Cache miss");
+
     const user = await this.userRepo.findAll(filters);
 
-    return user.map(({ password_hash, ...safe }) => safe);
+    const safeUsers = user.map(({ password_hash, ...safe }) => safe);
+
+    await redisClient.set("users", JSON.stringify(safeUsers), { EX: 60 });
+
+    return safeUsers;
   }
 }

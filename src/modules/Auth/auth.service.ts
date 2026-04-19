@@ -4,6 +4,7 @@ import { UserRepository } from "../User/types/user-repository.interface";
 import { JwtService } from "./types/jwt.interface";
 import { NotFoundError } from "../../shared/NotFoundError";
 import { UnAuthorizedError } from "../../shared/UnAuthorizedError";
+import { redisClient } from "../../utils/redis";
 export class AuthService {
   constructor(
     private userRepository: UserRepository,
@@ -29,6 +30,8 @@ export class AuthService {
     });
 
     const {password_hash, ...safe} = user
+
+    await redisClient.del("users")
 
     return safe;
   }
