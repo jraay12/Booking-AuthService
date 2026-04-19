@@ -146,23 +146,72 @@ describe("User service", () => {
       expect(userRepo.update).not.toHaveBeenCalled();
     });
 
-    it("should deactivate user successfully", async() => {
+    it("should deactivate user successfully", async () => {
       userRepo.findById.mockResolvedValue({
         id: user_id,
-        is_active: true
-      } as any)
+        is_active: true,
+      } as any);
 
       userRepo.update.mockResolvedValue({
         id: user_id,
-        is_active: false
-      } as any)
+        is_active: false,
+      } as any);
 
-      const result = await userService.deactivate(user_id)
+      const result = await userService.deactivate(user_id);
 
-      expect(userRepo.update).toHaveBeenCalledWith({is_active: false}, user_id)
+      expect(userRepo.update).toHaveBeenCalledWith(
+        { is_active: false },
+        user_id,
+      );
 
-      expect(result.is_active).toBe(false)
-    })
+      expect(result.is_active).toBe(false);
+    });
+  });
 
+  describe("user activate", () => {
+    const user_id = "3";
+    it("should return error if user not found", async () => {
+      userRepo.findById.mockResolvedValue(null);
+
+      await expect(userService.activate(user_id)).rejects.toThrow(
+        "User not found",
+      );
+
+      expect(userRepo.update).not.toHaveBeenCalled();
+    });
+
+    it("should successfully activate user", async () => {
+      userRepo.findById.mockResolvedValue({
+        id: user_id,
+        is_active: false,
+      } as any);
+
+      userRepo.update.mockResolvedValue({
+        id: user_id,
+        is_active: true,
+      } as any);
+
+      const result = await userService.activate(user_id);
+
+      expect(userRepo.update).toHaveBeenCalledWith(
+        { is_active: true },
+        user_id,
+      );
+
+      expect(result.is_active).toBe(true);
+    });
+
+    it("should not be activate when user already activated", async () => {
+      userRepo.findById.mockResolvedValue({
+        id: user_id,
+        is_active: true,
+      } as any);
+
+      expect(userService.activate(user_id)).rejects.toThrow(
+        "User already activated",
+      );
+
+      expect(userRepo.update).not.toHaveBeenCalled();
+    });
   });
 });
