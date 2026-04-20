@@ -25,7 +25,11 @@ export class UserService {
     if (!user.is_active)
       throw new BadRequestError("User is a already deactivated");
 
-    await redisClient.del("users")
+    const keys = await redisClient.keys("users:*");
+
+    if (keys.length > 0) {
+      await redisClient.del(keys);
+    }
 
     return await this.userRepo.update({ is_active: false }, user_id);
   }
@@ -37,7 +41,11 @@ export class UserService {
 
     if (user.is_active) throw new BadRequestError("User already activated");
 
-    await redisClient.del("users")
+    const keys = await redisClient.keys("users:*");
+    
+    if(keys.length > 0) {
+      await redisClient.del(keys);
+    }
 
     return await this.userRepo.update({ is_active: true }, user_id);
   }
@@ -53,8 +61,10 @@ export class UserService {
   }
 
   async getUsers(filters?: { is_active?: boolean }) {
-    
-    const cached = await redisClient.get("users");
+    // Create unique cache key based on filters
+    const cacheKey = `users:${JSON.stringify(filters || {})}`;
+
+    const cached = await redisClient.get(cacheKey);
 
     if (cached) {
       console.log("cache hit");
@@ -67,7 +77,7 @@ export class UserService {
 
     const safeUsers = user.map(({ password_hash, ...safe }) => safe);
 
-    await redisClient.set("users", JSON.stringify(safeUsers), { EX: 60 });
+    await redisClient.set(cacheKey, JSON.stringify(safeUsers), { EX: 60 });
 
     return safeUsers;
   }

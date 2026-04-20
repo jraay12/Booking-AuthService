@@ -31,7 +31,11 @@ export class AuthService {
 
     const {password_hash, ...safe} = user
 
-    await redisClient.del("users")
+    const keys = await redisClient.keys("users:*");
+    
+    if(keys.length > 0) {
+      await redisClient.del(keys);
+    }
 
     return safe;
   }
